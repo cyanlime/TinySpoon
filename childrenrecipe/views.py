@@ -146,7 +146,7 @@ def serialize_recipe(recipe, request):
         recipe_tags = recipe.tag.filter(category__is_tag=3)
         
         td = recipe_create_time - epoch
-        timestamp_recipe_createtime = int(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6)
+        timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
   
         age_recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recipe.id)+'/',
                 'id': recipe_id ,'create_time': timestamp_recipe_createtime, 'name': recipe_name, 'user': recipe_user, 
@@ -173,53 +173,48 @@ def recipes(request):
         createtime = request.data.get('create_time', None)
         select_tags = request.data.get('tag_id', None)
 
-        pdb.set_trace()
+        #pdb.set_trace()
         age_tags = []
         other_tags = []
 
         stage_tags = Tag.objects.filter(category__is_tag=1)
-        for select_tag in select_tags: 
-                if stage_tags:
+        if stage_tags and select_tags is not None:
+                for select_tag in select_tags: 
                         for tag in stage_tags:
                                 if select_tag==int(tag.id):
                                         age_tags.append(int(tag.id))
-     
-        #pdb.set_trace()
-        
-        for tag in select_tags: 
-                if tag not in age_tags:
-                        other_tags.append(tag)
+
+                for tag in select_tags: 
+                        if tag not in age_tags:
+                                other_tags.append(tag)
 
         if createtime:
                 datetime_createtime = datetime.datetime.fromtimestamp(createtime)
 
+        #import pdb
+        #pdb.set_trace()
         if Recipe.objects.exists():
-                if search is None:
-                        if select_tags is not None and len(select_tags)>0:
-                                if createtime is not None:
-                                        screen_recipes = Recipe.objects.filter(tag__in=select_tags).filter(create_time__lt=datetime_createtime).order_by('-create_time')
-                                else:
-                                        screen_recipes = Recipe.objects.filter(tag__in=select_tags).order_by('-create_time')         
-                        else:
-                                if createtime is not None:
-                                        screen_recipes = Recipe.objects.filter(create_time__lt=datetime_createtime).order_by('-create_time') 
-                                else:
-                                        screen_recipes = Recipe.objects.order_by('-create_time') 
-                else:   
-                        if createtime is not None:    
-                                screen_recipes = Recipe.objects.filter(name__contains=search).filter(create_time__lt=datetime_createtime).order_by('-create_time') 
-                        else:
-                                screen_recipes = Recipe.objects.filter(name__contains=search).order_by('-create_time') 
-                
+                screen_recipes = Recipe.objects
+                if search is not None:
+                        screen_recipes = screen_recipes.filter(name__contains=search)
+                if age_tags is not None and len(age_tags) > 0:
+                        screen_recipes = screen_recipes.filter(tag__in=age_tags)
+                if other_tags is not None and len(other_tags) > 0:
+                        screen_recipes = screen_recipes.filter(tag__in=other_tags)
+                if createtime is not None:
+                        screen_recipes = screen_recipes.filter(create_time__lt=datetime_createtime)
+                screen_recipes = screen_recipes.order_by('-create_time')
+ 
                 #pdb.set_trace()
                 category_recipes_index = {}
                 distinct_screen_recipes = []
                 for raw_recipe in screen_recipes.all():
                         if raw_recipe not in distinct_screen_recipes:
                                 distinct_screen_recipes.append(raw_recipe)
-                        
+                #pdb.set_trace()    
                 for recipe in distinct_screen_recipes:
                         stages = recipe.tag.filter(category__is_tag=1).all()
+                     
                         if stages is None or stages.count()==0:
                                 continue
                         for stage in stages:
@@ -235,10 +230,20 @@ def recipes(request):
                                 else:
                                         recipes_with_stage = recipes_with_stage[:9]
                                         recipes_with_stage.append(serialize_recipe(recipe, request))
-                                
+                           
                 data.sort(key=lambda category_recipes: category_recipes.get('tag_seq'))
-                return Response(data, status=status.HTTP_200_OK)  
-        
+    
+                de_stage = []
+                if age_tags is not None and len(age_tags)>0:
+                        for stage_recipe in data:
+                                stage_id = int(stage_recipe.get('tag_id'))
+                                if stage_id in age_tags:
+                                        de_stage.append(stage_recipe)
+ 
+                        return Response(de_stage, status=status.HTTP_200_OK)           
+                else:
+                        return Response(data, status=status.HTTP_200_OK)
+
         else:        
                 return Response(data, status=status.HTTP_200_OK)
         
@@ -268,7 +273,7 @@ def recipe(request, recipe_id):
                         recipe_procedures = recipe.procedure_set.all() 
 
                         td = recipe_create_time - epoch
-                        timestamp_recipe_createtime = int(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6)
+                        timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 
                         separate_recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recipe.id)+'/',
                                 'create_time': timestamp_recipe_createtime, 'id': recipe_id , 'name': recipe_name, 'user': recipe_user, 
@@ -371,9 +376,9 @@ def recommend(request):
 		td = recommend_recipe_create_time - epoch
                 td1 = recommend_create_time - epoch
                 td2 = recommend_pubdate - epoch
-		timestamp_recipe_createtime = int(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6)
-                timestamp_createtime = int(td1.microseconds + (td1.seconds + td1.days * 24 * 3600) * 10**6)
-                timestamp_pubdate = int(td2.microseconds + (td2.seconds + td2.days * 24 * 3600) * 10**6)
+		timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+                timestamp_createtime = int(td1.seconds + td1.days * 24 * 3600)
+                timestamp_pubdate = int(td2.seconds + td2.days * 24 * 3600)
                 
                 recommend = {'recommend_recipe': 'Today\'s Specials', 'create_time': timestamp_createtime,
                         'pubdate': timestamp_pubdate, 'image': request.build_absolute_uri(recommend_image), 
