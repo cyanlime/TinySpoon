@@ -1,0 +1,154 @@
+body,
+ul,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+form,
+dl,
+dt,
+dd {
+  margin: 0px;
+  padding: 0px;
+  font-size: 12px;
+  font-weight: normal;
+}
+ul {
+  list-style: none;
+}
+img {
+  border-style: none;
+  display: block;
+}
+body {
+  width: 650px;
+  margin: 5rem auto;
+  font-size: 100px;
+}
+.app_controller {
+  display: none !important;
+}
+.pc_controller {
+  display: block !important;
+  border-bottom: none !important;
+}
+.big_box {
+  margin-left: 2rem;
+}
+/*logo*/
+.logo {
+  width: 100%;
+  height: 3rem;
+  background: url('../images/logo.png') no-repeat;
+}
+/*title*/
+.big_title {
+  width: 100%;
+  height: 2rem;
+  line-height: 2rem;
+  font-size: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  display: none;
+}
+.small_title {
+  width: 100%;
+  height: 2rem;
+  line-height: 2rem;
+  font-size: 1.5rem;
+  color: #c8beac;
+  padding-top: 2rem;
+  padding-bottom: 1.2rem;
+}
+.border_box {
+  border-bottom: 1px dashed #ccc;
+}
+/*img*/
+.banner {
+  width: 100%;
+}
+/*label*/
+.label_box {
+  overflow: hidden;
+  margin-top: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+.label_box .label {
+  width: 10rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  background: #fcbea6;
+  float: left;
+  margin: 0.3rem 0.5rem;
+}
+/*TextDescription*/
+.des {
+  width: 100%;
+  font-size: 1.2rem;
+  margin: 0;
+  line-height: 1.8rem;
+}
+.des_border {
+  font-size: 1.2rem;
+  line-height: 1.8rem;
+}
+/*list*/
+.list {
+  width: 100%;
+}
+.list .row .rank {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  font-size: 1.2rem;
+  border-bottom: 1px dashed #ccc;
+  padding-left: 0.2rem;
+}
+.list .row .left {
+  width: 40%;
+}
+.list .row .right {
+  padding-left: 0!important;
+}
+/*Image & Text*/
+.left {
+  float: left;
+}
+.img_des_box {
+  margin-top: 2.5rem;
+  overflow: hidden;
+}
+.img_des_box .img_des {
+  margin: 0 0.4rem;
+}
+.img_des_box .img_des .des_li {
+  overflow: hidden;
+  margin-bottom: 4rem;
+}
+.img_des_box .img_des .des_li .num {
+  display: block;
+  float: left;
+  height: 1rem;
+  line-height: 1rem;
+  color: red;
+  font-size: 1.5rem;
+  margin-right: 0.3rem;
+}
+.img_des_box .img_des .des_li .img {
+  width: 13rem;
+  margin-right: 3rem;
+}
+.img_des_box .img_des .des_li .step_des {
+  width: 90%;
+  display: block;
+  font-size: 1.5rem;
+  margin: 0.4rem 0.3rem;
+  line-height: 1.8rem;
+}
+.img_des_box tr:last-child {
+  margin-bottom: 0!important;
+}
