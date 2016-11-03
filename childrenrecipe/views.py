@@ -297,7 +297,7 @@ def recipe(request, recipe_id):
                         for procedure in recipe_procedures:
 
                                 td1 = procedure.create_time - epoch
-                                timestamp_procedure_createtime = int(td1.microseconds + (td1.seconds + td1.days * 24 * 3600) * 10**6)
+                                timestamp_procedure_createtime = int(td1.seconds + td1.days * 24 * 3600)
 
                                 procedure_image = procedure.image
                                 
