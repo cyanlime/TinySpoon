@@ -143,7 +143,7 @@ def serialize_recipe(recipe, request):
         
         #import pdb
         #pdb.set_trace()
-        recipe_tags = recipe.tag.filter(category__is_tag=3)
+        recipe_tags = recipe.tags.filter(category__is_tag=3)
         
         td = recipe_create_time - epoch
         timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
@@ -213,7 +213,7 @@ def recipes(request):
                                 distinct_screen_recipes.append(raw_recipe)
                 #pdb.set_trace()    
                 for recipe in distinct_screen_recipes:
-                        stages = recipe.tag.filter(category__is_tag=1).all()
+                        stages = recipe.tags.filter(category__is_tag=1).all()
                      
                         if stages is None or stages.count()==0:
                                 continue
@@ -268,7 +268,7 @@ def recipe(request, recipe_id):
                         recipe_exihibitpic = recipe.exihibitpic.url
                         recipe_introduce = recipe.introduce
                         recipe_tips = recipe.tips
-                        recipe_tags = recipe.tag.all()
+                        recipe_tags = recipe.tags.all()
                         recipe_materials = recipe.material_set.all()
                         recipe_procedures = recipe.procedure_set.all() 
 
