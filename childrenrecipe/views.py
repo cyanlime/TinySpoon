@@ -4,6 +4,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 import datetime
+import exceptions
 from django.utils.timezone import UTC
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
@@ -128,10 +129,8 @@ def tags(request):
         else:
                 return Response(data, status=status.HTTP_200_OK) 
 
-def serialize_recipe(recipe, request):
 
-        now = datetime.datetime.now()
-        epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
+def serialize_recipe(recipe, request):
 
         recipe_create_time = recipe.create_time
         recipe_id = recipe.id
@@ -140,18 +139,18 @@ def serialize_recipe(recipe, request):
         recipe_exihibitpic = recipe.exihibitpic.url
         recipe_introduce = recipe.introduce
         recipe_tips = recipe.tips
-        
-        #import pdb
-        #pdb.set_trace()
+        recipe_pageviews = recipe.pageviews
+        recipe_collect_quantity = recipe.collect_quantity
         recipe_tags = recipe.tags.filter(category__is_tag=3)
-        
+
+        epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
         td = recipe_create_time - epoch
         timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
   
-        age_recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recipe.id)+'/',
+        age_recipe = {'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
                 'id': recipe_id ,'create_time': timestamp_recipe_createtime, 'name': recipe_name, 'user': recipe_user, 
                 'exihibitpic': request.build_absolute_uri(recipe_exihibitpic), 'introduce': recipe_introduce,
-                'tips': recipe_tips, 'tags':[]}
+                'tips': recipe_tips, 'pageviews': recipe_pageviews, 'collect_quantity': recipe_collect_quantity, 'tags':[]}
                 
         for tag in recipe_tags:
                 therapeutic_tag = {'id': tag.id, 'name': tag.name, 'category_id': tag.category_id,
@@ -171,7 +170,7 @@ def recipes(request):
         
         search = request.data.get('search', None)
         createtime = request.data.get('create_time', None)
-        select_tags = request.data.get('tag_id', None)
+        select_tags = request.data.get('tag_id', [])
 
         #pdb.set_trace()
         age_tags = []
@@ -191,19 +190,18 @@ def recipes(request):
         if createtime:
                 datetime_createtime = datetime.datetime.fromtimestamp(createtime)
 
-        #import pdb
         #pdb.set_trace()
         if Recipe.objects.exists():
                 screen_recipes = Recipe.objects
                 if search is not None:
                         screen_recipes = screen_recipes.filter(name__contains=search)
                 if age_tags is not None and len(age_tags) > 0:
-                        screen_recipes = screen_recipes.filter(tag__in=age_tags)
+                        screen_recipes = screen_recipes.filter(tags__in=age_tags)
                 if other_tags is not None and len(other_tags) > 0:
-                        screen_recipes = screen_recipes.filter(tag__in=other_tags)
+                        screen_recipes = screen_recipes.filter(tags__in=other_tags)
                 if createtime is not None:
                         screen_recipes = screen_recipes.filter(create_time__lt=datetime_createtime)
-                screen_recipes = screen_recipes.order_by('-create_time')
+                screen_recipes = screen_recipes.order_by('-pageviews')
  
                 #pdb.set_trace()
                 category_recipes_index = {}
@@ -257,7 +255,6 @@ def recipe(request, recipe_id):
         raw_recipes = Recipe.objects.filter(id = recipe_id)
         #raw_recipes = get_list_or_404(Recipe, pk=recipe_id)
         if len(raw_recipes)==1:
-                now = datetime.datetime.now()
                 epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
 
                 for recipe in raw_recipes:
@@ -270,8 +267,16 @@ def recipe(request, recipe_id):
                         recipe_tips = recipe.tips
                         recipe_tags = recipe.tags.all()
                         recipe_materials = recipe.material_set.all()
-                        recipe_procedures = recipe.procedure_set.all() 
-
+                        recipe_procedures = recipe.procedure_set.all()                       
+                        
+                        #pdb.set_trace()
+                        recipe_pageviews = recipe.pageviews
+                        if recipe_id:
+                                recipe_pageviews = recipe_pageviews+1
+                                recipe.pageviews = recipe_pageviews
+                                recipe.save()
+                        recipe_collect_quantity = recipe.collect_quantity
+                               
                         td = recipe_create_time - epoch
                         timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 
@@ -279,7 +284,8 @@ def recipe(request, recipe_id):
                                 'create_time': timestamp_recipe_createtime, 'id': recipe_id , 'name': recipe_name, 'user': recipe_user, 
                                 'exihibitpic': request.build_absolute_uri(recipe_exihibitpic), 'introduce': recipe_introduce,
                                 'tips': recipe_tips, 'tags':[], 'materials': [], 'procedures':[], 'width': recipe.exihibitpic.width, 
-                                'height': recipe.exihibitpic.height, 'share_url': config.SHARE_URL % recipe.id}
+                                'height': recipe.exihibitpic.height, 'share_url': config.SHARE_URL % recipe.id, 'pageviews': recipe_pageviews,
+                                'collect_quantity': recipe_collect_quantity}
 
                         #pdb.set_trace()
                         for tag in recipe_tags:
@@ -321,6 +327,83 @@ def recipe(request, recipe_id):
         else:
                 separate_recipe = {}
                 return Response(separate_recipe, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def collect(request, recipe_id):
+        if recipe_id:
+                raw_recipes = Recipe.objects.filter(id = recipe_id)
+                #import pdb
+                #pdb.set_trace()
+                if len(raw_recipes)==1:
+                        for recipe in raw_recipes:
+                                recipe_id = recipe.id
+                                recipe_name = recipe.name
+                                recipe_collect_quantity = recipe.collect_quantity                         
+                                recipe_collect_quantity = recipe_collect_quantity+1
+                                recipe.collect_quantity = recipe_collect_quantity
+                                recipe.save()
+                
+                collection = {'collect success': 'true', 'recipe_url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
+                        'recipe_id': recipe_id, 'recipe_name': recipe_name, 'collect_quantity': recipe_collect_quantity}
+                
+                return Response(collection, status=status.HTTP_200_OK)
+        
+        else:
+                collection = {}
+                return Response(collection, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def favoritelist(request):
+        #import pdb
+        #pdb.set_trace()
+
+        collect_recipes = []
+        try:
+                recipes_id = request.data.get('recipe_id', [])
+
+                if Recipe.objects.exists() and recipes_id is not None:
+                        screen_recipes = Recipe.objects.filter(id__in=recipes_id)
+
+                        for recipe in screen_recipes:
+
+                                recipe_create_time = recipe.create_time
+                                recipe_id = recipe.id
+                                recipe_name = recipe.name
+                                recipe_user = recipe.user
+                                recipe_exihibitpic = recipe.exihibitpic.url
+                                recipe_introduce = recipe.introduce
+                                recipe_tips = recipe.tips
+                                recipe_pageviews = recipe.pageviews
+                                recipe_collect_quantity = recipe.collect_quantity      
+                                recipe_tags = recipe.tags.filter(category__is_tag=3)
+                                
+                                epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
+                                td = recipe_create_time - epoch
+                                timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+                        
+                                collect_recipe = {'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
+                                        'id': recipe_id ,'create_time': timestamp_recipe_createtime, 'name': recipe_name, 'user': recipe_user, 
+                                        'exihibitpic': request.build_absolute_uri(recipe_exihibitpic), 'introduce': recipe_introduce,
+                                        'tips': recipe_tips, 'pageviews': recipe_pageviews, 'collect_quantity': recipe_collect_quantity, 'tags':[]}
+                                        
+                                for tag in recipe_tags:
+                                        therapeutic_tag = {'id': tag.id, 'name': tag.name, 'category_id': tag.category_id,
+                                                'category_name': tag.category.name}
+                                        age_recipe['tags'].append(therapeutic_tag)
+
+                                collect_recipes.append(collect_recipe)
+
+                        return Response(collect_recipes, status=status.HTTP_200_OK)
+                
+                else:
+                        return Response(collect_recipes, status=status.HTTP_200_OK)
+
+        except Exception, e:
+                return Response(collect_recipes, status=status.HTTP_200_OK)
 
 
         # raw_data = Recipe.objects
@@ -390,7 +473,7 @@ def recommend(request):
                         'name': recommend_recipe_name,
                         'user': recommend_recipe_user,
                         'introduce': recommend_recipe_introduce,
-                        'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recommend_recipe_id)+'/'
+                        'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recommend_recipe_id)+'/'
                 }
                 return Response(recommend, status=status.HTTP_200_OK)
         

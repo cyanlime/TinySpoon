@@ -12,7 +12,9 @@ class Recipe(models.Model):
 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
 	introduce = models.TextField(blank=False)
 	tips = models.TextField(blank=True)
-	tags = models.ManyToManyField('Tag')	
+	tags = models.ManyToManyField('Tag')
+	pageviews = models.IntegerField()
+	collect_quantity = models.IntegerField()
 	def __unicode__(self):
 		return self.name
 
@@ -27,7 +29,7 @@ class Procedure(models.Model):
 	recipe = models.ForeignKey('Recipe')
 	seq = models.IntegerField()
 	describe = models.TextField(blank=False)
-	image = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d',blank=True)
+	image = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=True)
 	create_time = models.DateTimeField(auto_now=True)
 	def __unicode__(self):
 		return self.recipe.name
