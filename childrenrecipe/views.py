@@ -201,7 +201,8 @@ def recipes(request):
                         screen_recipes = screen_recipes.filter(tags__in=other_tags)
                 if createtime is not None:
                         screen_recipes = screen_recipes.filter(create_time__lt=datetime_createtime)
-                screen_recipes = screen_recipes.order_by('-pageviews')
+                screen_recipes = screen_recipes.order_by('-create_time')
+                #screen_recipes = screen_recipes.order_by('pageviews')
  
                 #pdb.set_trace()
                 category_recipes_index = {}
@@ -334,7 +335,7 @@ def recipe(request, recipe_id):
 def collect(request, recipe_id):
         #import pdb
         #pdb.set_trace()
-        
+
         raw_recipes = Recipe.objects.filter(id = recipe_id)
 
         if len(raw_recipes)==1:
@@ -359,10 +360,11 @@ def collect(request, recipe_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def favoritelist(request):
-        # import pdb
-        # pdb.set_trace()
+        #import pdb
+        #pdb.set_trace()
 
         collect_recipes = []
+        sorted_collect_recipes = []
         recipes_id = request.data.get('recipe_id', [])
 
         if len(recipes_id)>0:          
@@ -391,14 +393,21 @@ def favoritelist(request):
                         for tag in recipe_tags:
                                 therapeutic_tag = {'id': tag.id, 'name': tag.name, 'category_id': tag.category_id,
                                         'category_name': tag.category.name}
-                                age_recipe['tags'].append(therapeutic_tag)
+                                collect_recipe['tags'].append(therapeutic_tag)
 
                         collect_recipes.append(collect_recipe)
 
-                return Response(collect_recipes, status=status.HTTP_200_OK)
+                #pdb.set_trace()
+                for id in recipes_id:
+                        for collect_recipe in collect_recipes:
+                                if int(collect_recipe.get('id')) == id:
+                                        if collect_recipe not in sorted_collect_recipes:
+                                                sorted_collect_recipes.append(collect_recipe)
+
+                return Response(sorted_collect_recipes, status=status.HTTP_200_OK)
                        
         else:
-                return Response(collect_recipes, status=status.HTTP_200_OK)
+                return Response(sorted_collect_recipes, status=status.HTTP_200_OK)
 
         # raw_data = Recipe.objects
         # if search <> None and len(search) > 0:
