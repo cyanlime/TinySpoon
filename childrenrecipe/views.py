@@ -131,7 +131,8 @@ def tags(request):
 
 
 def serialize_recipe(recipe, request):
-
+        #import pdb
+                
         recipe_create_time = recipe.create_time
         recipe_id = recipe.id
         recipe_name = recipe.name
@@ -146,12 +147,19 @@ def serialize_recipe(recipe, request):
         epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
         td = recipe_create_time - epoch
         timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
-  
+
+        #pdb.set_trace()
+        #recipe_time_weight = recipe.time_weight
+        recipe_time_weight = timestamp_recipe_createtime+int(recipe_pageviews)*3600*24
+        recipe.time_weight = recipe_time_weight
+        recipe.save()
+
         age_recipe = {'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
                 'id': recipe_id ,'create_time': timestamp_recipe_createtime, 'name': recipe_name, 'user': recipe_user, 
                 'exihibitpic': request.build_absolute_uri(recipe_exihibitpic), 'introduce': recipe_introduce,
-                'tips': recipe_tips, 'pageviews': recipe_pageviews, 'collect_quantity': recipe_collect_quantity, 'tags':[]}
-                
+                'tips': recipe_tips, 'pageviews': recipe_pageviews, 'collect_quantity': recipe_collect_quantity,
+                'time_weight': recipe_time_weight, 'tags':[]}
+
         for tag in recipe_tags:
                 therapeutic_tag = {'id': tag.id, 'name': tag.name, 'category_id': tag.category_id,
                         'category_name': tag.category.name}
@@ -169,7 +177,6 @@ def recipes(request):
         data = []
         
         search = request.data.get('search', None)
-        createtime = request.data.get('create_time', None)
         select_tags = request.data.get('tag_id', [])
 
         #pdb.set_trace()
@@ -187,8 +194,8 @@ def recipes(request):
                         if tag not in age_tags:
                                 other_tags.append(tag)
 
-        if createtime:
-                datetime_createtime = datetime.datetime.fromtimestamp(createtime)
+        # if createtime:
+        #         datetime_createtime = datetime.datetime.fromtimestamp(createtime)
 
         #pdb.set_trace()
         if Recipe.objects.exists():
@@ -199,10 +206,11 @@ def recipes(request):
                         screen_recipes = screen_recipes.filter(tags__in=age_tags)
                 if other_tags is not None and len(other_tags) > 0:
                         screen_recipes = screen_recipes.filter(tags__in=other_tags)
-                if createtime is not None:
-                        screen_recipes = screen_recipes.filter(create_time__lt=datetime_createtime)
-                screen_recipes = screen_recipes.order_by('-create_time')
-                #screen_recipes = screen_recipes.order_by('pageviews')
+                # if createtime is not None:
+                #         screen_recipes = screen_recipes.filter(create_time__lt=datetime_createtime)
+                
+                #pdb.set_trace()
+                screen_recipes = screen_recipes.order_by('-time_weight')
  
                 #pdb.set_trace()
                 category_recipes_index = {}
@@ -210,8 +218,10 @@ def recipes(request):
                 for raw_recipe in screen_recipes.all():
                         if raw_recipe not in distinct_screen_recipes:
                                 distinct_screen_recipes.append(raw_recipe)
+               
                 #pdb.set_trace()    
                 for recipe in distinct_screen_recipes:
+
                         stages = recipe.tags.filter(category__is_tag=1).all()
                      
                         if stages is None or stages.count()==0:
@@ -229,7 +239,7 @@ def recipes(request):
                                 else:
                                         recipes_with_stage = recipes_with_stage[:9]
                                         recipes_with_stage.append(serialize_recipe(recipe, request))
-                           
+                                      
                 data.sort(key=lambda category_recipes: category_recipes.get('tag_seq'))
     
                 de_stage = []
@@ -329,6 +339,63 @@ def recipe(request, recipe_id):
                 separate_recipe = {}
                 return Response(separate_recipe, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def pagination(request):
+        #import pdb
+        # pdb.set_trace()
+        
+        select_tags = request.data.get('tag_id', [])
+        pagenum = request.data.get('page_number', None)
+        #pagesize = request.data.get('page_size', None)
+
+        age_tags = []
+        other_tags = []
+
+        #pdb.set_trace()
+        stage_tags = Tag.objects.filter(category__is_tag=1)
+        if stage_tags and select_tags is not None:
+                for select_tag in select_tags: 
+                        for tag in stage_tags:
+                                if select_tag==int(tag.id):
+                                        age_id = tag.id
+                                        tag_name = tag.name
+                                        age_tags.append(int(tag.id))
+                
+                for tag in select_tags: 
+                        if tag not in age_tags:
+                                other_tags.append(tag)
+        #pdb.set_trace()
+        if len(age_tags)==1 and isinstance(pagenum, int):
+                if Recipe.objects.exists():
+                        screen_recipes = Recipe.objects
+                        if age_tags is not None and len(age_tags) > 0:
+                                screen_recipes = screen_recipes.filter(tags__in=age_tags)
+                        if other_tags is not None and len(other_tags) > 0:
+                                screen_recipes = screen_recipes.filter(tags__in=other_tags)
+
+                        screen_recipes = screen_recipes.order_by('-time_weight')
+
+                        #pdb.set_trace()
+                        result = [];
+                        
+                        if pagenum>=1 and pagenum<=(len(screen_recipes)+10-1)/10:
+                                for recipe in screen_recipes[(pagenum-1)*10:(pagenum-1)*10+10]:
+                                        result.append(serialize_recipe(recipe, request))
+                                
+                                stage_recipes = {'recipes': result, 'tag_id': age_id, 'age': tag_name}
+
+                                return Response(stage_recipes, status=status.HTTP_200_OK)
+                        else:
+                                stage_recipes = {'error': 'Sorry, pageNumber value is out of range.'}
+                                return Response(stage_recipes, status=status.HTTP_200_OK)
+                else:
+                        stage_recipes = {'error': 'Sorry, recipe does not exist.'}
+                        return Response(stage_recipes, status=status.HTTP_200_OK)      
+        else:
+                stage_recipes = {'errror': 'Sorry, please input an age tag_id or an integer page_number.'}
+                return Response(stage_recipes, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -353,7 +420,7 @@ def collect(request, recipe_id):
                 return Response(collection, status=status.HTTP_200_OK)
         
         else:
-                collection = {}
+                collection = {'errror': 'Sorry, the recipe does not exist.'}
                 return Response(collection, status=status.HTTP_200_OK)
 
 

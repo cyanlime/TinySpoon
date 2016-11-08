@@ -18,14 +18,11 @@ router = routers.DefaultRouter()
 urlpatterns = [	
     url(r'^', include(router.urls)),
 	url(r'^tags/$', views.tags, name = 'tags'),
-	#url(r'^recipe$',views.recipe, name = 'recipe'),
 	url(r'^recipes/$', views.recipes, name = 'recipes'),
 	url(r'^recipes/(?P<recipe_id>[0-9]+)/$', views.recipe, name = 'recipe'),
+	url(r'^pagination/$', views.pagination, name = 'pagination'),
 	url(r'^collect/(?P<recipe_id>[0-9]+)/$', views.collect, name = 'collect'),
 	url(r'^favoritelist/$', views.favoritelist, name='favoritelist'),
-	# url(r'^materials/$',views.materials, name = 'materials'),
-	# url(r'^procedures/$',views.procedures, name = 'procedures'),
-	#url(r'^tagshow$', views.tagshow, name = 'tagshow'),
 	url(r'^recommend/$', views.recommend, name='recommend'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
