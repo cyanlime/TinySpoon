@@ -4,13 +4,12 @@ from __future__ import unicode_literals
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
-import datatime
 
 from django.db import models
 # Create your models here.
 
 class Recipe(models.Model):
-	create_time = models.DateTimeField(auto_now_add=True)
+	create_time = models.DateTimeField()
 	name = models.CharField(max_length=200)
 	user = models.CharField(max_length=40, blank=True)
 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
@@ -26,11 +25,17 @@ class Recipe(models.Model):
 	@staticmethod
 	def pre_save(sender, instance, **kwargs):
 		import datetime
+		now = datetime.datetime.now()
 		epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
-		instance_create_time = instance.create_time
-		td = instance_create_time - epoch
+		td = now - epoch
 		timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
-		instance.time_weight = timestamp_recipe_createtime+int(instance.pageviews)*3600*24
+		if instance.create_time is None:
+			instance.create_time = now
+			instance.pageviews = 0
+			instance.collect_quantity = 0
+			instance.time_weight = timestamp_recipe_createtime
+		else:
+			pass
 pre_save.connect(Recipe.pre_save, Recipe, dispatch_uid="TinySpoon.childrenrecipe.models.Recipe")
 
 class Material(models.Model):

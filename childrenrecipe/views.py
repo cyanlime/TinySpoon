@@ -343,8 +343,9 @@ def recipe(request, recipe_id):
 @permission_classes([AllowAny])
 def pagination(request):
         #import pdb
-        # pdb.set_trace()
-        
+        #pdb.set_trace()
+
+        search = request.data.get('search', None)
         select_tags = request.data.get('tag_id', [])
         pagenum = request.data.get('page_number', None)
         #pagesize = request.data.get('page_size', None)
@@ -355,7 +356,7 @@ def pagination(request):
         #pdb.set_trace()
         stage_tags = Tag.objects.filter(category__is_tag=1)
         if stage_tags and select_tags is not None:
-                for select_tag in select_tags: 
+                for select_tag in select_tags:
                         for tag in stage_tags:
                                 if select_tag==int(tag.id):
                                         age_id = tag.id
@@ -369,6 +370,8 @@ def pagination(request):
         if len(age_tags)==1 and isinstance(pagenum, int):
                 if Recipe.objects.exists():
                         screen_recipes = Recipe.objects
+                        if search is not None:
+                                screen_recipes = screen_recipes.filter(name__contains=search)
                         if age_tags is not None and len(age_tags) > 0:
                                 screen_recipes = screen_recipes.filter(tags__in=age_tags)
                         if other_tags is not None and len(other_tags) > 0:
@@ -376,18 +379,22 @@ def pagination(request):
 
                         screen_recipes = screen_recipes.order_by('-time_weight')
 
-                        #pdb.set_trace()
-                        result = [];
-                        
-                        if pagenum>=1 and pagenum<=(len(screen_recipes)+10-1)/10:
-                                for recipe in screen_recipes[(pagenum-1)*10:(pagenum-1)*10+10]:
-                                        result.append(serialize_recipe(recipe, request))
+                        if len(screen_recipes)>0:                       
                                 
-                                stage_recipes = {'recipes': result, 'tag_id': age_id, 'age': tag_name}
+                                result = [];
+                                          
+                                if pagenum>=1 and pagenum<=(len(screen_recipes)+10-1)/10:
+                                        for recipe in screen_recipes[(pagenum-1)*10:(pagenum-1)*10+10]:
+                                                result.append(serialize_recipe(recipe, request))
+                                        
+                                        stage_recipes = {'recipes': result, 'tag_id': age_id, 'age': tag_name}
 
-                                return Response(stage_recipes, status=status.HTTP_200_OK)
+                                        return Response(stage_recipes, status=status.HTTP_200_OK)
+                                else:
+                                        stage_recipes = {'error': 'Sorry, pageNumber value is out of range.'}
+                                        return Response(stage_recipes, status=status.HTTP_200_OK)
                         else:
-                                stage_recipes = {'error': 'Sorry, pageNumber value is out of range.'}
+                                stage_recipes = {'error': 'Sorry, this stage of recipes do not exist.'}
                                 return Response(stage_recipes, status=status.HTTP_200_OK)
                 else:
                         stage_recipes = {'error': 'Sorry, recipe does not exist.'}

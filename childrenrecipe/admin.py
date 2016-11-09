@@ -18,6 +18,7 @@ class RecipeAdmin(admin.ModelAdmin):
 		ProcedureInline,
 	]
 	list_display = ('id', 'name')
+	exclude = ('pageviews', 'collect_quantity', 'time_weight', 'create_time',)
 	search_fields = ['name']
 
 class MaterialAdmin(admin.ModelAdmin):
