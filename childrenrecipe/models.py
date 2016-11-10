@@ -35,7 +35,7 @@ class Recipe(models.Model):
 			instance.collect_quantity = 0
 			instance.time_weight = timestamp_recipe_createtime
 		else:
-			pass
+			instance.time_weight = timestamp_recipe_createtime+int(instance.pageviews)*3600*24
 pre_save.connect(Recipe.pre_save, Recipe, dispatch_uid="TinySpoon.childrenrecipe.models.Recipe")
 
 class Material(models.Model):
