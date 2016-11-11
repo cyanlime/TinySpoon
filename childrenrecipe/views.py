@@ -649,7 +649,7 @@ def recommended(request):
                         'name': recommend_recipe_name,
                         'user': recommend_recipe_user,
                         'introduce': recommend_recipe_introduce,
-                        'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recommend_recipe_id)+'/'
+                        'url': "http://"+request.META['HTTP_HOST']+'/'+'api'+'/'+'recipes'+'/'+str(recommend_recipe_id)
                 }
                 return Response(recommend, status=status.HTTP_200_OK)
         
@@ -762,7 +762,7 @@ def reciped(request):
     # cache
     q = Q()
     for tag_id in rest_query_tags:
-        q = q | Q(tag=tag_id)
+        q = q | Q(tags=tag_id)
     s = None
     if create_time:
         createtime = time.localtime(int(create_time))
