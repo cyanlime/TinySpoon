@@ -53,7 +53,7 @@ class ProcedureSerializer(serializers.HyperlinkedModelSerializer):
                 fields = ('url','id','recipe','seq','describe','image','width','height')
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
-        tags = TagSerializer(many=True)
+        tag = TagSerializer(many=True, source='tags')
         material = MaterialSerializer(source='material_set',many=True)
         procedure = ProcedureSerializer(source='procedure_set',many=True)
         width = serializers.SerializerMethodField(read_only=True)
@@ -79,6 +79,6 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
                 model = Recipe
-                fields = ('url','id','name','user','exihibitpic','introduce','tags','tips',
+                fields = ('url','id','name','user','exihibitpic','introduce','tag','tips',
                         'material','procedure','width','height','share_url'
                         )
