@@ -24,13 +24,13 @@ urlpatterns = [
 	url(r'^v1/collect/(?P<recipe_id>[0-9]+)/$', views.collect, name = 'collect'),
 	url(r'^v1/favoritelist/$', views.favoritelist, name='favoritelist'),
 	url(r'^v1/recommend/$', views.recommend, name='recommend'),
+	url(r'^v1/weekrecommend/$', views.weekrecommend, name='weekrecommend'),
+	url(r'^v1/hotrecipes/$', views.hotrecipes, name='hotrecipes'),
+	url(r'^v1/foodknowledge/$', views.foodknowledge, name='foodknowledge'),
 
 
 	url(r'^tags$', views.tagsed, name = 'tags'),
 	url(r'^recipe$',views.reciped, name = 'recipe'),
-	#url(r'^tagshow$', views.tagshow, name = 'tagshow'),
 	url(r'^recommend/$', views.recommended, name='recommend'),
-	#url(r'/v2/recommend/$', views.recommand2, name='recommand2')
-	#url(r'^reci$', views.recipes, name = 'reci'),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)

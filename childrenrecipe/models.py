@@ -77,3 +77,24 @@ class Recommend(models.Model):
 	pubdate = models.DateTimeField()
 	def __unicode__(self):
 		return self.recipe.name
+
+class WeekRecommend(models.Model):
+	create_time = models.DateTimeField(auto_now=True)
+	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
+	headline = models.CharField(max_length=100)
+	subhead = models.CharField(max_length=100)
+	guide_language = models.TextField(blank=True)
+	recipes = models.ManyToManyField('Recipe')
+	pubdate = models.DateTimeField()
+	def __unicode__(self):
+		return self.headline
+
+class FoodKnowledge(models.Model):
+	headline = models.CharField(max_length=100)
+	subhead = models.CharField(max_length=100)
+	title = models.CharField(max_length=100)
+	subtitle = models.CharField(max_length=100)
+	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
+	url = models.URLField()
+	def __unicode__(self):
+		return self.title

@@ -561,6 +561,145 @@ def recommend(request):
                 return Response(recommend, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def weekrecommend(request):
+        import pdb
+        pdb.set_trace()
+
+        recipes = []
+        now = datetime.datetime.now()
+        epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
+
+	if WeekRecommend.objects.filter(pubdate__lte=now): 
+                recommend = WeekRecommend.objects.filter(pubdate__lte=now).order_by('-pubdate').first()
+                
+                recommend_create_time = recommend.create_time
+                recommend_pubdate = recommend.pubdate
+                recommend_exihibitpic = recommend.exihibitpic.url
+                recommend_headline = recommend.headline
+                recommend_subhead = recommend.subhead
+                recommend_guide_language = recommend.guide_language
+                recommend_recipes = recommend.recipes.all()
+
+                pdb.set_trace()
+                if len(recommend_recipes)==7:
+                        for recommend_recipe in recommend_recipes:
+                                recommend_recipe_id = recommend_recipe.id
+                                recommend_recipe_create_time = recommend_recipe.create_time
+                                recommend_recipe_name = recommend_recipe.name
+                                recommend_recipe_exihibitpic = recommend_recipe.exihibitpic.url
+                                recommend_recipe_introduce = recommend_recipe.introduce
+                        
+                                td = recommend_recipe_create_time - epoch
+                                td1 = recommend_create_time - epoch
+                                td2 = recommend_pubdate - epoch
+                                timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+                                timestamp_createtime = int(td1.seconds + td1.days * 24 * 3600)
+                                timestamp_pubdate = int(td2.seconds + td2.days * 24 * 3600)
+
+                                recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recommend_recipe_id)+'/',
+                                        'id': recommend_recipe_id, 'create_time': timestamp_recipe_createtime,
+                                        'exihibitpic': request.build_absolute_uri(recommend_recipe_exihibitpic),
+                                        'name': recommend_recipe_name, 'introduce': recommend_recipe_introduce}
+                                
+                                # pdb.set_trace()
+                                recipes.append(recipe)
+
+                        recommend = {'recommend_recipes': 'Weekly Recipes Recommendation', 'create_time': timestamp_createtime,
+                                'pubdate': timestamp_pubdate, 'headline': recommend_headline, 'subhead': recommend_subhead,
+                                'exihibitpic': request.build_absolute_uri(recommend_exihibitpic), 
+                                'guide_language': recommend_guide_language, 'recipes': recipes}
+
+                        return Response(recommend, status=status.HTTP_200_OK)
+                
+                else:
+                        recommend = {'error': 'Sorry, the number of selected recommend recipes is not equal to seven.'}
+                        return Response(recommend, status=status.HTTP_200_OK)
+        
+        else:
+                recommend = {}
+                return Response(recommend, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def hotrecipes(request):
+        import pdb
+        pdb.set_trace()
+
+        hot_recipes = []
+        now = datetime.datetime.now()
+        epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
+
+	if Recipe.objects.exists(): 
+                if len(Recipe.objects.all())>=20:
+                        recipes = Recipe.objects.order_by('-pageviews')[:20]
+                else:
+                        recipes = Recipe.objects.order_by('-pageviews')
+
+                for recipe in recipes:
+     
+                        recommend_recipe_id = recipe.id
+                        recommend_recipe_create_time = recipe.create_time
+                        recommend_recipe_name = recipe.name
+                        recommend_recipe_exihibitpic = recipe.exihibitpic.url
+                        recommend_recipe_introduce = recipe.introduce
+                        recommend_recipe_pageviews = recipe.pageviews
+                
+                        td = recommend_recipe_create_time - epoch    
+                        timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+                    
+                        separate_recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recommend_recipe_id)+'/',
+                                'id': recommend_recipe_id, 'create_time': timestamp_recipe_createtime, 'name': recommend_recipe_name,
+                                'exihibitpic': request.build_absolute_uri(recommend_recipe_exihibitpic), 
+                                'introduce': recommend_recipe_introduce, 'pageviews': recommend_recipe_pageviews}
+                        
+                        # pdb.set_trace()
+                        hot_recipes.append(separate_recipe)
+
+                hotrecipes = {'recommend_recipes': 'Recent Popular Recipes', 'recipes': hot_recipes}
+                return Response(hotrecipes, status=status.HTTP_200_OK)
+
+        else:
+                hotrecipes = {'error': 'Sorry, the recipe does not exist.'}
+                return Response(hotrecipes, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def foodknowledge(request):
+        
+        import pdb
+        pdb.set_trace()
+
+        foodknowledge_addition = []
+
+        foodknowledges = FoodKnowledge.objects.all()
+        if foodknowledges is not None and len(foodknowledges)>0:
+                for foodknowledge in foodknowledges:
+                        foodknowledge_id = foodknowledge.id
+                        foodknowledge_headline = foodknowledge.headline
+                        foodknowledge_subhead = foodknowledge.subhead
+                        foodknowledge_title = foodknowledge.title
+                        foodknowledge_subtitle = foodknowledge.subtitle
+                        foodknowledge_exihibitpic = foodknowledge.exihibitpic.url
+                        foodknowledge_url = foodknowledge.url
+
+                        separate_foodknowledge = {'id': foodknowledge_id, 'headline': foodknowledge_headline, 
+                                'subhead': foodknowledge_subhead, 'title': foodknowledge_title, 
+                                'subtitle': foodknowledge_subtitle, 'url': foodknowledge_url,
+                                'exihibitpic': request.build_absolute_uri(foodknowledge_exihibitpic)}
+
+                        foodknowledge_addition.append(separate_foodknowledge)
+
+                food_addition_knowledge = {'addition_knowledge':'Supplementary Food Addition Knowledge', 'food_knowledge': foodknowledge_addition}        
+
+                return Response(food_addition_knowledge, status=status.HTTP_200_OK)
+        else:
+                food_addition_knowledge = {'error': 'Sorry, the recipe does not exist.'}
+                return Response(food_addition_knowledge, status=status.HTTP_200_OK)
+
+
+
 
 
 @api_view(['GET'])

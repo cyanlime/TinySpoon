@@ -22,7 +22,7 @@ class RecipeAdmin(admin.ModelAdmin):
 	search_fields = ['name']
 
 class MaterialAdmin(admin.ModelAdmin):
-	list_diplay = ('id', 'name')
+	list_display = ('id', 'name')
 	search_fields = ['name']
 
 class ProcedureAdmin(admin.ModelAdmin):
@@ -30,6 +30,10 @@ class ProcedureAdmin(admin.ModelAdmin):
 
 class RecommendAdmin(admin.ModelAdmin):
 	raw_id_fields = ('recipe',)
+
+class WeekRecommendAdmin(admin.ModelAdmin):
+	filter_horizontal = ('recipes',)
+
 
 #admin.site.register(Student)
 #admin.site.register(Classes)
@@ -39,5 +43,5 @@ admin.site.register(Procedure, ProcedureAdmin)
 admin.site.register(Tag)
 admin.site.register(Category)
 admin.site.register(Recommend, RecommendAdmin)
-
-
+admin.site.register(WeekRecommend, WeekRecommendAdmin)
+admin.site.register(FoodKnowledge)
