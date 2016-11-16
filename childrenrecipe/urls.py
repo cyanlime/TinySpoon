@@ -27,6 +27,7 @@ urlpatterns = [
 	url(r'^v1/weekrecommend/$', views.weekrecommend, name='weekrecommend'),
 	url(r'^v1/hotrecipes/$', views.hotrecipes, name='hotrecipes'),
 	url(r'^v1/foodknowledge/$', views.foodknowledge, name='foodknowledge'),
+	url(r'^v1/columnrecommend/$', views.columnrecommend, name='columnrecommend'),
 
 
 	url(r'^tags$', views.tagsed, name = 'tags'),

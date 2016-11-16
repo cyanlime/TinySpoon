@@ -700,6 +700,147 @@ def foodknowledge(request):
 
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def columnrecommend(request):
+        import pdb
+        pdb.set_trace()
+
+        recipes = []
+        epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
+
+        cards = Card.objects.all()
+        for card in cards:
+                card_id = card.id
+                card_create_time = card.create_time
+                card_exihibitpic = card.exihibitpic.url
+                card_headline = card.headline
+                card_subhead = card.subhead
+                card_pagetype = card.pagetype
+                card_reference_id = card.reference_id
+                card_seq = card.seq
+                card_pubdate = card.pubdate
+
+                pdb.set_trace()
+                if (card_pagetype==1):
+                        largeviewsmodes = LargeViewsMode.objects.filter(id = card_reference_id)
+                        
+                        if len(largeviewsmodes)==1:
+                                for largeviewsmode in largeviewsmodes:
+                                        largeviewsmode_id = largeviewsmode.id
+                                        largeviewsmode_create_time = largeviewsmode.create_time
+                                        largeviewsmode_guide_language = largeviewsmode.guide_language
+                                        largeviewsmode_recipes = largeviewsmode.recipes.all()
+                                        for recommend_recipe in largeviewsmode_recipes:
+
+                                                recommend_recipe_id = recommend_recipe.id
+                                                recommend_recipe_create_time = recommend_recipe.create_time
+                                                recommend_recipe_name = recommend_recipe.name
+                                                recommend_recipe_exihibitpic = recommend_recipe.exihibitpic.url
+                                                recommend_recipe_introduce = recommend_recipe.introduce
+                                        
+                                                td = recommend_recipe_create_time - epoch
+                                                td1 = card_create_time - epoch
+                                                td2 = card_pubdate - epoch
+                                                timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+                                                timestamp_createtime = int(td1.seconds + td1.days * 24 * 3600)
+                                                timestamp_pubdate = int(td2.seconds + td2.days * 24 * 3600)
+
+                                                recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recommend_recipe_id)+'/',
+                                                        'id': recommend_recipe_id, 'create_time': timestamp_recipe_createtime,
+                                                        'exihibitpic': request.build_absolute_uri(recommend_recipe_exihibitpic),
+                                                        'name': recommend_recipe_name, 'introduce': recommend_recipe_introduce}
+                                                
+                                                # pdb.set_trace()
+                                                recipes.append(recipe)
+
+                                weekly_recommend = {'id': card_id, 'create_time': timestamp_createtime, 'pubdate': timestamp_pubdate,
+                                        'exihibitpic': request.build_absolute_uri(card_exihibitpic), 
+                                        'headline': card_headline, 'subhead': card_subhead, 'pagetype': card_pagetype, 'seq': card_seq,
+                                        'reference_id': card_reference_id, 'guide_language': largeviewsmode_guide_language,
+                                        'recommend_recipes': 'Weekly Recipes Recommendation', 'recipes': recipes}
+
+                        else:
+
+                                hotrecipes = []
+                                now = datetime.datetime.now()
+                                epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
+
+                                if Recipe.objects.exists(): 
+                                        if len(Recipe.objects.all())>=20:
+                                                recipes = Recipe.objects.order_by('-pageviews')[:20]
+                                        else:
+                                                recipes = Recipe.objects.order_by('-pageviews')
+
+                                        for recipe in recipes:
+                        
+                                                recommend_recipe_id = recipe.id
+                                                recommend_recipe_create_time = recipe.create_time
+                                                recommend_recipe_name = recipe.name
+                                                recommend_recipe_exihibitpic = recipe.exihibitpic.url
+                                                recommend_recipe_introduce = recipe.introduce
+                                                recommend_recipe_pageviews = recipe.pageviews
+                                        
+                                                td = recommend_recipe_create_time - epoch    
+                                                timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+                                        
+                                                separate_recipe = {'url': request.build_absolute_uri(reverse("recipes", kwargs={}))+str(recommend_recipe_id)+'/',
+                                                        'id': recommend_recipe_id, 'create_time': timestamp_recipe_createtime, 'name': recommend_recipe_name,
+                                                        'exihibitpic': request.build_absolute_uri(recommend_recipe_exihibitpic), 
+                                                        'introduce': recommend_recipe_introduce, 'pageviews': recommend_recipe_pageviews}
+                                                
+                                                # pdb.set_trace()
+                                                hotrecipes.append(separate_recipe)
+
+                                        hot_recipes = {'id': card_id, 'create_time': timestamp_createtime, 'pubdate': timestamp_pubdate,
+                                                'exihibitpic': request.build_absolute_uri(card_exihibitpic), 
+                                                'headline': card_headline, 'subhead': card_subhead, 'pagetype': card_pagetype, 'seq': card_seq,
+                                                'reference_id': card_reference_id,
+                                                'recommend_recipes': 'Recent Popular Recipes', 'recipes': hotrecipes}
+
+                #return Response(recommend, status=status.HTTP_200_OK)
+
+                pdb.set_trace()
+                foodknowledge_addition = []
+                if (card_pagetype==2):
+                        detailslistmodes = DetailsListMode.objects.filter(id = card_reference_id)
+                        for detailslistmode in detailslistmodes:
+                                detailslistmode_id = detailslistmode.id
+                                detailslistmode_create_time = detailslistmode.create_time
+                                detailslistmode_webpages = detailslistmode.webpages.all()
+                                for foodknowledge in detailslistmode_webpages:
+                                        
+                                        pdb.set_trace()
+                                        foodknowledge_id = foodknowledge.id
+                                        foodknowledge_create_time = foodknowledge.create_time
+                                        foodknowledge_title = foodknowledge.title
+                                        foodknowledge_subtitle = foodknowledge.subtitle
+                                        foodknowledge_exihibitpic = foodknowledge.exihibitpic.url
+                                        foodknowledge_url = foodknowledge.url
+                                        foodknowledge_seq = foodknowledge.seq
+
+                                        td = foodknowledge_create_time - epoch
+                                        timestamp_foodknowledge_createtime = int(td.seconds + td.days * 24 * 3600)
+
+                                        separate_foodknowledge = {'id': foodknowledge_id, 'create_time': timestamp_foodknowledge_createtime,
+                                                'title': foodknowledge_title, 'subtitle': foodknowledge_subtitle, 'url': foodknowledge_url,
+                                                'exihibitpic': request.build_absolute_uri(foodknowledge_exihibitpic), 'seq': foodknowledge_seq}
+
+                                        foodknowledge_addition.append(separate_foodknowledge)
+  
+                        food_addition_knowledge = {'id': card_id, 'create_time': timestamp_createtime, 'pubdate': timestamp_pubdate,
+                                'exihibitpic': request.build_absolute_uri(card_exihibitpic), 'reference_id': card_reference_id,
+                                'headline': card_headline, 'subhead': card_subhead, 'pagetype': card_pagetype, 'seq': card_seq,
+                                'addition_knowledge':'Supplementary Food Addition Knowledge', 'food_knowledge': foodknowledge_addition}
+
+        columnrecommend = {'Weekly Recipes Recommendation': weekly_recommend, 'Recent Popular Recipes': hot_recipes, 
+                'Supplementary Food Addition Knowledge': food_addition_knowledge}
+
+        return Response(columnrecommend, status=status.HTTP_200_OK)
+
+
+                
+     
 
 
 @api_view(['GET'])
