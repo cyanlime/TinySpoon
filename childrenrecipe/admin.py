@@ -37,15 +37,21 @@ class RecommendAdmin(admin.ModelAdmin):
 # class ColumnRecommendAdmin(admin.ModelAdmin):
 # 	filter_horizontal = ('recipes', 'foodknowledges')
 
+class CardAdmin(admin.ModelAdmin):
+	list_display = ('id', 'headline', 'pubdate', 'seq', 'pagetype', 'reference_id')
+
 class LargeViewsModeAdmin(admin.ModelAdmin):
 	filter_horizontal = ('recipes',)
-	list_display = ('id',)
+	list_display = ('id', 'name')
 	#exclude = ('create_time',)
 
 class DetailsListModeAdmin(admin.ModelAdmin):
 	filter_horizontal = ('webpages',)
-	list_display = ('id',)
+	list_display = ('id', 'name')
 	#exclude = ('create_time',)
+
+class WebPageAdmin(admin.ModelAdmin):
+	list_display = ('id', 'title', 'seq')
 
 # class CardAdmin(admin.ModelAdmin):
 # 	filter_horizontal = ('pagetype',)
@@ -62,9 +68,8 @@ admin.site.register(Recommend, RecommendAdmin)
 # admin.site.register(WeekRecommend, WeekRecommendAdmin)
 # admin.site.register(FoodKnowledge)
 # admin.site.register(ColumnRecommend, ColumnRecommendAdmin)
-admin.site.register(Card)
+admin.site.register(Card, CardAdmin)
 #admin.site.register(DisplayMode)
 admin.site.register(LargeViewsMode, LargeViewsModeAdmin)
 admin.site.register(DetailsListMode, DetailsListModeAdmin)
-admin.site.register(WebPage)
-
+admin.site.register(WebPage, WebPageAdmin)

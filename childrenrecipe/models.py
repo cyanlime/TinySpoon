@@ -18,6 +18,7 @@ class Recipe(models.Model):
 	tags = models.ManyToManyField('Tag')
 	pageviews = models.IntegerField()
 	collect_quantity = models.IntegerField()
+	seq = models.IntegerField()
 	time_weight = models.IntegerField()
 	def __unicode__(self):
 		return self.name
@@ -69,7 +70,7 @@ class Category(models.Model):
 		return self.name
 
 class Recommend(models.Model):
-	create_time = models.DateTimeField(auto_now=True)
+	create_time = models.DateTimeField(auto_now_add=True)
 	recipe = models.ForeignKey('Recipe')
 	name = models.CharField(max_length=200, blank=True)
 	introduce = models.TextField(blank=True)
@@ -112,9 +113,8 @@ class Recommend(models.Model):
 # 		return self.headline
 
 
-
 class Card(models.Model):
-	create_time = models.DateTimeField(auto_now=True)
+	create_time = models.DateTimeField(auto_now_add=True)
 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
 	headline = models.CharField(max_length=100)
 	subhead = models.CharField(max_length=100)
@@ -127,22 +127,23 @@ class Card(models.Model):
 	def __unicode__(self):
 		return self.headline
 
-# class DisplayMode(models.Model):
-# 	guide_language = models.TextField(blank=True)
-# 	recipes = models.ManyToManyField('Recipe')
-# 	webpages = models.ManyToManyField('WebPage')
-
 class LargeViewsMode(models.Model):
-	create_time = models.DateTimeField(auto_now=True)
+	create_time = models.DateTimeField(auto_now_add=True)
+	name = models.CharField(max_length=100)
 	guide_language = models.TextField(blank=True)
 	recipes = models.ManyToManyField('Recipe')
+	def __unicode__(self):
+		return self.name
 
 class DetailsListMode(models.Model):
-	create_time = models.DateTimeField(auto_now=True)
+	create_time = models.DateTimeField(auto_now_add=True)
+	name = models.CharField(max_length=100)
 	webpages = models.ManyToManyField('WebPage')
+	def __unicode__(self):
+		return self.name
 
 class WebPage(models.Model):
-	create_time = models.DateTimeField(auto_now=True)
+	create_time = models.DateTimeField(auto_now_add=True)
 	title = models.CharField(max_length=100)
 	subtitle = models.CharField(max_length=100)
 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
