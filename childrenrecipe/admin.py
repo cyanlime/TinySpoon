@@ -31,30 +31,19 @@ class ProcedureAdmin(admin.ModelAdmin):
 class RecommendAdmin(admin.ModelAdmin):
 	raw_id_fields = ('recipe',)
 
-# class WeekRecommendAdmin(admin.ModelAdmin):
-# 	filter_horizontal = ('recipes',)
-
-# class ColumnRecommendAdmin(admin.ModelAdmin):
-# 	filter_horizontal = ('recipes', 'foodknowledges')
-
 class CardAdmin(admin.ModelAdmin):
-	list_display = ('id', 'headline', 'pubdate', 'seq', 'pagetype', 'reference_id')
+	list_display = ('id', 'headline', 'seq', 'pagetype', 'reference_id')
 
 class LargeViewsModeAdmin(admin.ModelAdmin):
 	filter_horizontal = ('recipes',)
 	list_display = ('id', 'name')
-	#exclude = ('create_time',)
 
 class DetailsListModeAdmin(admin.ModelAdmin):
 	filter_horizontal = ('webpages',)
 	list_display = ('id', 'name')
-	#exclude = ('create_time',)
 
 class WebPageAdmin(admin.ModelAdmin):
 	list_display = ('id', 'title', 'seq')
-
-# class CardAdmin(admin.ModelAdmin):
-# 	filter_horizontal = ('pagetype',)
 
 
 #admin.site.register(Student)
@@ -65,11 +54,7 @@ admin.site.register(Procedure, ProcedureAdmin)
 admin.site.register(Tag)
 admin.site.register(Category)
 admin.site.register(Recommend, RecommendAdmin)
-# admin.site.register(WeekRecommend, WeekRecommendAdmin)
-# admin.site.register(FoodKnowledge)
-# admin.site.register(ColumnRecommend, ColumnRecommendAdmin)
 admin.site.register(Card, CardAdmin)
-#admin.site.register(DisplayMode)
 admin.site.register(LargeViewsMode, LargeViewsModeAdmin)
 admin.site.register(DetailsListMode, DetailsListModeAdmin)
 admin.site.register(WebPage, WebPageAdmin)

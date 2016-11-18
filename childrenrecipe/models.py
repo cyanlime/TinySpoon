@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 
 from django.db import models
+
 # Create your models here.
 
 class Recipe(models.Model):
@@ -79,40 +80,6 @@ class Recommend(models.Model):
 	def __unicode__(self):
 		return self.recipe.name
 
-# class WeekRecommend(models.Model):
-# 	create_time = models.DateTimeField(auto_now=True)
-# 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
-# 	headline = models.CharField(max_length=100)
-# 	subhead = models.CharField(max_length=100)
-# 	guide_language = models.TextField(blank=True)
-# 	recipes = models.ManyToManyField('Recipe')
-# 	pubdate = models.DateTimeField()
-# 	def __unicode__(self):
-# 		return self.headline
-
-# class FoodKnowledge(models.Model):
-# 	title = models.CharField(max_length=100)
-# 	subtitle = models.CharField(max_length=100)
-# 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
-# 	url = models.URLField()
-# 	seq = models.IntegerField()
-# 	def __unicode__(self):
-# 		return self.title
-
-# class ColumnRecommend(models.Model):
-# 	create_time = models.DateTimeField(auto_now=True)
-# 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
-# 	headline = models.CharField(max_length=100)
-# 	subhead = models.CharField(max_length=100)
-# 	guide_language = models.TextField(blank=True)
-# 	recipes = models.ManyToManyField('Recipe', blank=True)
-# 	foodknowledges = models.ManyToManyField('FoodKnowledge', blank=True)
-# 	seq = models.IntegerField()
-# 	pubdate = models.DateTimeField()
-# 	def __unicode__(self):
-# 		return self.headline
-
-
 class Card(models.Model):
 	create_time = models.DateTimeField(auto_now_add=True)
 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
@@ -120,10 +87,8 @@ class Card(models.Model):
 	subhead = models.CharField(max_length=100)
 	pagetype = models.IntegerField()
 	#pagetype = models.CharField(max_length=40)
-	#pagetype = models.ManyToManyField('DisplayMode')
 	reference_id = models.IntegerField()
 	seq = models.IntegerField()
-	pubdate = models.DateTimeField()
 	def __unicode__(self):
 		return self.headline
 
