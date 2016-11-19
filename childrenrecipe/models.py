@@ -19,7 +19,6 @@ class Recipe(models.Model):
 	tags = models.ManyToManyField('Tag')
 	pageviews = models.IntegerField()
 	collect_quantity = models.IntegerField()
-	seq = models.IntegerField()
 	time_weight = models.IntegerField()
 	def __unicode__(self):
 		return self.name
@@ -92,18 +91,28 @@ class Card(models.Model):
 	def __unicode__(self):
 		return self.headline
 
+class LargeViewsModeRecipe(models.Model):
+	largeviewsmode = models.ForeignKey('LargeViewsMode')
+	recipe = models.ForeignKey('Recipe')
+	seq = models.IntegerField()
+
 class LargeViewsMode(models.Model):
 	create_time = models.DateTimeField(auto_now_add=True)
 	name = models.CharField(max_length=100)
 	guide_language = models.TextField(blank=True)
-	recipes = models.ManyToManyField('Recipe')
+	recipes = models.ManyToManyField('Recipe', through=LargeViewsModeRecipe)
 	def __unicode__(self):
 		return self.name
+
+class DetailsListModeWebPage(models.Model):
+	detailslistmode = models.ForeignKey('DetailsListMode')
+	webpage = models.ForeignKey('WebPage')
+	seq = models.IntegerField()
 
 class DetailsListMode(models.Model):
 	create_time = models.DateTimeField(auto_now_add=True)
 	name = models.CharField(max_length=100)
-	webpages = models.ManyToManyField('WebPage')
+	webpages = models.ManyToManyField('WebPage', through=DetailsListModeWebPage)
 	def __unicode__(self):
 		return self.name
 
@@ -113,6 +122,5 @@ class WebPage(models.Model):
 	subtitle = models.CharField(max_length=100)
 	exihibitpic = models.ImageField(upload_to='exhibited_picture/%Y/%m/%d', blank=False)
 	url = models.URLField()
-	seq = models.IntegerField()
 	def __unicode__(self):
 		return self.title

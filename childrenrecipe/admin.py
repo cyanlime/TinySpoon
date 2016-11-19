@@ -31,19 +31,30 @@ class ProcedureAdmin(admin.ModelAdmin):
 class RecommendAdmin(admin.ModelAdmin):
 	raw_id_fields = ('recipe',)
 
+
 class CardAdmin(admin.ModelAdmin):
 	list_display = ('id', 'headline', 'seq', 'pagetype', 'reference_id')
 
+class LargeViewsModeRecipeInline(admin.TabularInline):
+	model = LargeViewsModeRecipe
+
 class LargeViewsModeAdmin(admin.ModelAdmin):
-	filter_horizontal = ('recipes',)
 	list_display = ('id', 'name')
+	inlines = [
+		LargeViewsModeRecipeInline,
+	]
+
+class DetailsListModeWebPageInline(admin.TabularInline):
+	model = DetailsListModeWebPage
 
 class DetailsListModeAdmin(admin.ModelAdmin):
-	filter_horizontal = ('webpages',)
 	list_display = ('id', 'name')
+	inlines = [
+		DetailsListModeWebPageInline,
+	]
 
 class WebPageAdmin(admin.ModelAdmin):
-	list_display = ('id', 'title', 'seq')
+	list_display = ('id', 'title',)
 
 
 #admin.site.register(Student)

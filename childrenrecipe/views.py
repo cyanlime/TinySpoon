@@ -583,15 +583,11 @@ def columnsrecommend(request):
                 card_pagetype = card.pagetype
                 card_reference_id = card.reference_id
                 card_seq = card.seq
-                #card_pubdate = card.pubdate
 
                 td1 = card_create_time - epoch
-                #td2 = card_pubdate - epoch
                 timestamp_card_createtime = int(td1.seconds + td1.days * 24 * 3600)
-                #timestamp_card_pubdate = int(td2.seconds + td2.days * 24 * 3600)
-        
+       
                 #pdb.set_trace()
-
                 if (card_pagetype==1):
                         largeviewsmodes = LargeViewsMode.objects.filter(id = card_reference_id)
         
@@ -601,17 +597,17 @@ def columnsrecommend(request):
                                         largeviewsmode_id = largeviewsmode.id
                                         largeviewsmode_create_time = largeviewsmode.create_time
                                         largeviewsmode_name = largeviewsmode.name
-                                        largeviewsmode_guide_language = largeviewsmode.guide_language
-                                        largeviewsmode_recipes = largeviewsmode.recipes.all()
-                                        for recommend_recipe in largeviewsmode_recipes:
+                                        largeviewsmode_guide_language = largeviewsmode.guide_language  
+                                        largeviewsmode_largeviewsmoderecipe_set = largeviewsmode.largeviewsmoderecipe_set.all()
 
-                                                recommend_recipe_id = recommend_recipe.id
-                                                recommend_recipe_create_time = recommend_recipe.create_time
-                                                recommend_recipe_name = recommend_recipe.name
-                                                recommend_recipe_exihibitpic = recommend_recipe.exihibitpic.url
-                                                recommend_recipe_introduce = recommend_recipe.introduce
+                                        for recommend_recipe in largeviewsmode_largeviewsmoderecipe_set:
+                                                recommend_recipe_id = recommend_recipe.recipe_id
                                                 recommend_recipe_seq = recommend_recipe.seq
-                                        
+                                                recommend_recipe_create_time = recommend_recipe.recipe.create_time
+                                                recommend_recipe_name = recommend_recipe.recipe.name
+                                                recommend_recipe_exihibitpic = recommend_recipe.recipe.exihibitpic.url
+                                                recommend_recipe_introduce = recommend_recipe.recipe.introduce
+                                                
                                                 td = recommend_recipe_create_time - epoch
                                                 timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
                                         
@@ -620,10 +616,8 @@ def columnsrecommend(request):
                                                         'exihibitpic': request.build_absolute_uri(recommend_recipe_exihibitpic),
                                                         'name': recommend_recipe_name, 'introduce': recommend_recipe_introduce}
                                                 
-                                                #pdb.set_trace()
                                                 recipes.append(recipe)
                                                 recipes.sort(key=lambda recipe: recipe.get('seq'))
-
 
                                 weekly_recommend = {'id': card_id, 'create_time': timestamp_card_createtime, 'seq': card_seq,
                                         'exihibitpic': request.build_absolute_uri(card_exihibitpic), 
@@ -648,7 +642,6 @@ def columnsrecommend(request):
                                                 recipes = Recipe.objects.order_by('-pageviews')
 
                                         for recipe in recipes:
-                        
                                                 recommend_recipe_id = recipe.id
                                                 recommend_recipe_create_time = recipe.create_time
                                                 recommend_recipe_name = recipe.name
@@ -664,7 +657,6 @@ def columnsrecommend(request):
                                                         'exihibitpic': request.build_absolute_uri(recommend_recipe_exihibitpic), 
                                                         'introduce': recommend_recipe_introduce, 'pageviews': recommend_recipe_pageviews}
                                                 
-                                                # pdb.set_trace()
                                                 hotrecipes.append(separate_recipe)
 
                                         hot_recipes = {'id': card_id, 'create_time': timestamp_card_createtime, 'seq': card_seq,
@@ -677,6 +669,7 @@ def columnsrecommend(request):
                
                 #pdb.set_trace()
                 if (card_pagetype==2):
+
                         foodknowledges_addition = []
                         detailslistmodes = DetailsListMode.objects.filter(id = card_reference_id)
 
@@ -685,18 +678,17 @@ def columnsrecommend(request):
                                         detailslistmode_id = detailslistmode.id
                                         detailslistmode_name = detailslistmode.name
                                         detailslistmode_create_time = detailslistmode.create_time
-                                        detailslistmode_webpages = detailslistmode.webpages.all()
-                                        for foodknowledge in detailslistmode_webpages:
-                                                
-                                                #pdb.set_trace()
-                                                foodknowledge_id = foodknowledge.id
-                                                foodknowledge_create_time = foodknowledge.create_time
-                                                foodknowledge_title = foodknowledge.title
-                                                foodknowledge_subtitle = foodknowledge.subtitle
-                                                foodknowledge_exihibitpic = foodknowledge.exihibitpic.url
-                                                foodknowledge_url = foodknowledge.url
-                                                foodknowledge_seq = foodknowledge.seq
+                                        detailslistmode_detailslistmodewebpage_set = detailslistmode.detailslistmodewebpage_set.all()
 
+                                        for foodknowledge in detailslistmode_detailslistmodewebpage_set:
+                                                foodknowledge_id = foodknowledge.webpage_id
+                                                foodknowledge_seq = foodknowledge.seq
+                                                foodknowledge_create_time = foodknowledge.webpage.create_time
+                                                foodknowledge_title = foodknowledge.webpage.title
+                                                foodknowledge_subtitle = foodknowledge.webpage.subtitle
+                                                foodknowledge_exihibitpic = foodknowledge.webpage.exihibitpic.url
+                                                foodknowledge_url = foodknowledge.webpage.url
+                                            
                                                 td = foodknowledge_create_time - epoch
                                                 timestamp_foodknowledge_createtime = int(td.seconds + td.days * 24 * 3600)
 
@@ -704,14 +696,14 @@ def columnsrecommend(request):
                                                         'title': foodknowledge_title, 'subtitle': foodknowledge_subtitle, 'url': foodknowledge_url,
                                                         'exihibitpic': request.build_absolute_uri(foodknowledge_exihibitpic), 'seq': foodknowledge_seq}
 
-                                                foodknowledges_addition.append(separate_foodknowledge)
+                                                foodknowledges_addition.append(separate_foodknowledge)  
                                                 foodknowledges_addition.sort(key=lambda separate_foodknowledge: separate_foodknowledge.get('seq'))
 
                                 food_addition_knowledge = {'id': card_id, 'create_time': timestamp_card_createtime, 'seq': card_seq,
                                         'exihibitpic': request.build_absolute_uri(card_exihibitpic), 'headline': card_headline, 'subhead': card_subhead,
                                         'pagetype': card_pagetype, 'reference_id': card_reference_id, 
                                         'recommend_addition_knowledge':'Supplementary Food Addition Knowledge', 
-                                        'food_knowledges': {'id': detailslistmode_id, 'name': detailslistmode_name, 'knowledges_list':foodknowledges_addition}}
+                                        'food_knowledges': {'id': detailslistmode_id, 'name': detailslistmode_name, 'knowledges_list': foodknowledges_addition}}
         
                                 columnsrecommend.append(food_addition_knowledge)  
 
@@ -721,8 +713,6 @@ def columnsrecommend(request):
         return Response(columnsrecommend, status=status.HTTP_200_OK)
 
    
-
-
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
