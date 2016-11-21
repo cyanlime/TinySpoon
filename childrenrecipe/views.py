@@ -139,13 +139,15 @@ def serialize_recipe(recipe, request):
         recipe_introduce = recipe.introduce
         recipe_tips = recipe.tips
         recipe_pageviews = recipe.pageviews
-        recipe_time_weight = recipe.time_weight
         recipe_collect_quantity = recipe.collect_quantity
         recipe_tags = recipe.tags.filter(category__is_tag=3)
 
         epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
         td = recipe_create_time - epoch
         timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
+
+        recipe_time_weight = timestamp_recipe_createtime+int(recipe_pageviews)*3600*24
+        recipe.save()
 
         age_recipe = {'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
                 'id': recipe_id ,'create_time': timestamp_recipe_createtime, 'name': recipe_name, 'user': recipe_user, 
