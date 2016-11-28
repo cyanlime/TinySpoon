@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 
 from django.db import models
+import random
 
 # Create your models here.
 
@@ -32,11 +33,12 @@ class Recipe(models.Model):
 		timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 		if instance.create_time is None:
 			instance.create_time = now
-			instance.pageviews = 0
-			instance.collect_quantity = 0
+			instance.pageviews = random.randint(50, 1000)
+			instance.collect_quantity = random.randint(10, 50)
 			instance.time_weight = timestamp_recipe_createtime
 		else:
 			instance.time_weight = timestamp_recipe_createtime+int(instance.pageviews)*3600*24
+
 pre_save.connect(Recipe.pre_save, Recipe, dispatch_uid="TinySpoon.childrenrecipe.models.Recipe")
 
 class Material(models.Model):
