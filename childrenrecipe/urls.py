@@ -25,9 +25,8 @@ urlpatterns = [
 	url(r'^v1/recommend/$', views.recommend, name='recommend'),
 	url(r'^v1/columnsrecommend/$', views.columnsrecommend, name='columnsrecommend'),
 
-	url(r'^v1/recipes_test/$', views.recipes_test, name = 'recipes_test'),
-	url(r'^v1/recipes_test2/$', views.recipes_old, name = 'recipes_old'),
-
+	# url(r'^v1/recipes_test/$', views.recipes_test, name = 'recipes_test'),
+	# url(r'^v1/recipes_test2/$', views.recipes_old, name = 'recipes_old'),
 
 	url(r'^tags$', views.tagsed, name = 'tags'),
 	url(r'^recipe$',views.reciped, name = 'recipe'),

@@ -27,16 +27,18 @@ class Recipe(models.Model):
 	@staticmethod
 	def pre_save(sender, instance, **kwargs):
 		import datetime
-		now = datetime.datetime.now()
 		epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
-		td = now - epoch
-		timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 		if instance.create_time is None:
+			now = datetime.datetime.now()
+			td = now - epoch
+			timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 			instance.create_time = now
 			instance.pageviews = random.randint(50, 1000)
 			instance.collect_quantity = random.randint(10, 50)
-			instance.time_weight = timestamp_recipe_createtime
+			instance.time_weight = timestamp_recipe_createtime+int(instance.pageviews)*3600*24
 		else:
+			td = instance.create_time - epoch
+			timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 			instance.time_weight = timestamp_recipe_createtime+int(instance.pageviews)*3600*24
 
 pre_save.connect(Recipe.pre_save, Recipe, dispatch_uid="TinySpoon.childrenrecipe.models.Recipe")

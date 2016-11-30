@@ -146,8 +146,10 @@ def serialize_recipe(recipe, request):
         td = recipe_create_time - epoch
         timestamp_recipe_createtime = int(td.seconds + td.days * 24 * 3600)
 
-        recipe_time_weight = timestamp_recipe_createtime+int(recipe_pageviews)*3600*24
-        #recipe.save()
+        #timestamp_recipe_createtime = time.mktime(recipe_create_time.timetuple()) 
+
+        recipe_time_weight = recipe.time_weight
+
         age_recipe = {'url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
                 'id': recipe_id ,'create_time': timestamp_recipe_createtime, 'name': recipe_name, 'user': recipe_user, 
                 'exihibitpic': request.build_absolute_uri(recipe_exihibitpic), 'introduce': recipe_introduce,
@@ -277,7 +279,6 @@ def recipe(request, recipe_id):
                         recipe_materials = recipe.material_set.all()
                         recipe_procedures = recipe.procedure_set.all()                       
                         
-                        #pdb.set_trace()
                         recipe_pageviews = recipe.pageviews
                         if recipe_id:
                                 recipe_pageviews = recipe_pageviews+1
@@ -972,9 +973,9 @@ def reciped(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def recipes_test(request):
+def recipes_test(request):  
 
-        import pdb
+        #import pdb
 
         search_key_from_params = request.data.get('search', None)
         tags_from_params = request.data.get('tag_id', [])
@@ -982,10 +983,8 @@ def recipes_test(request):
         stage_tags = []
         other_tags = []
 
-        #pdb.set_trace()
         all_tags = Tag.objects.select_related('category')
-        #pdb.set_trace()
-
+     
         all_tags_index = {}
         all_stage_tags = []
         for tag in all_tags:
@@ -1036,12 +1035,8 @@ def recipes_test(request):
 # if search_key_from_params is not None:
 #         recipes = filter(global_recipes, 'contains', 'name', search_key_from_params)
 
-
 def filter(collection, method, field, params):
         new_collection = []
-
-        import pdb      
-        #pdb.set_trace()
 
         if method == 'in':
                 for item in collection:
@@ -1049,7 +1044,7 @@ def filter(collection, method, field, params):
                                 if item2 in params:
                                         new_collection.append(item)
                                         break
-                return new_collection
+                return new_collection  
         elif method == 'contains':
                 for item in collection:
                         if getattr(item, field).find(params) <> -1:
@@ -1063,8 +1058,8 @@ global_recipes_latest_access_time = datetime.datetime.now()
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def recipes(request):
-        import pdb
-        #pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         # _start_time = datetime.datetime.now()
 
         global global_recipes
@@ -1078,8 +1073,7 @@ def recipes(request):
         other_tags = []
 
         all_tags = Tag.objects.select_related('category')
-        #pdb.set_trace()
-
+       
         all_tags_index = {}
         all_stage_tags = []
         all_other_tags = []
@@ -1110,17 +1104,15 @@ def recipes(request):
         #pdb.set_trace()
         recipes = global_recipes
         if other_tags is not None and len(other_tags) > 0:
-                recipes = filter(recipes, 'in', 'cache_tags', other_tags)
-                #pdb.set_trace()
+                recipes = filter(recipes, 'in', 'cache_tags', other_tags)      
         if stage_tags is not None and len(stage_tags) > 0:
                 recipes = filter(recipes, 'in', 'cache_tags', stage_tags)
-                #pdb.set_trace()
         if search_key_from_params is not None:
                 recipes = filter(recipes, 'contains', 'name', search_key_from_params)
 
         #pdb.set_trace()
         category_recipes_index = {}
-        _total_time = datetime.timedelta(seconds=0)
+        # _total_time = datetime.timedelta(seconds=0)
         for recipe in recipes:
                 recipe_cache_tags = recipe.cache_tags
   
@@ -1130,7 +1122,7 @@ def recipes(request):
                                 stages.append(cache_tag)
 
                 #pdb.set_trace()
-                _begin_time = datetime.datetime.now()
+                # _begin_time = datetime.datetime.now()
                 for stage in stages:
                         if (stage_tags is None or len(stage_tags) == 0) or stage in stage_tags:
                                 recipes_with_stage = category_recipes_index.get(stage.name, None)
