@@ -278,12 +278,11 @@ def recipe(request, recipe_id):
                         recipe_tags = recipe.tags.all()
                         recipe_materials = recipe.material_set.all()
                         recipe_procedures = recipe.procedure_set.all()                       
-                        
+
+                        recipe.pageviews+=1
+                        recipe.save()
                         recipe_pageviews = recipe.pageviews
-                        if recipe_id:
-                                recipe_pageviews = recipe_pageviews+1
-                                recipe.pageviews = recipe_pageviews
-                                recipe.save()
+
                         recipe_collect_quantity = recipe.collect_quantity
                                
                         td = recipe_create_time - epoch
@@ -424,16 +423,16 @@ def collect(request, recipe_id):
                 for recipe in raw_recipes:
                         recipe_id = recipe.id
                         recipe_name = recipe.name
-                        recipe_collect_quantity = recipe.collect_quantity                         
-                        recipe_collect_quantity = recipe_collect_quantity+1
-                        recipe.collect_quantity = recipe_collect_quantity
+
+                        recipe.collect_quantity+=1
                         recipe.save()
-        
+                        recipe_collect_quantity = recipe.collect_quantity
+
                 collection = {'collect success': 'true', 'recipe_url': request.build_absolute_uri(reverse('recipes', kwargs={}))+str(recipe.id)+'/',
                         'recipe_id': recipe_id, 'recipe_name': recipe_name, 'collect_quantity': recipe_collect_quantity}
-                
+                          
                 return Response(collection, status=status.HTTP_200_OK)
-        
+
         else:
                 collection = {'errror': 'Sorry, the recipe does not exist.'}
                 return Response(collection, status=status.HTTP_200_OK)
@@ -460,7 +459,7 @@ def favoritelist(request):
                         recipe_introduce = recipe.introduce
                         recipe_tips = recipe.tips
                         recipe_pageviews = recipe.pageviews
-                        recipe_collect_quantity = recipe.collect_quantity      
+                        recipe_collect_quantity = recipe.collect_quantity
                         recipe_tags = recipe.tags.filter(category__is_tag=3)
                         
                         epoch = datetime.datetime(1970, 1, 1)+datetime.timedelta(hours=8)
