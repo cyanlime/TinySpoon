@@ -37,6 +37,7 @@ class CardAdmin(admin.ModelAdmin):
 
 class LargeViewsModeRecipeInline(admin.TabularInline):
 	model = LargeViewsModeRecipe
+	raw_id_fields = ('recipe',)
 
 class LargeViewsModeAdmin(admin.ModelAdmin):
 	list_display = ('id', 'name')
@@ -46,6 +47,7 @@ class LargeViewsModeAdmin(admin.ModelAdmin):
 
 class DetailsListModeWebPageInline(admin.TabularInline):
 	model = DetailsListModeWebPage
+	raw_id_fields = ('webpage',)
 
 class DetailsListModeAdmin(admin.ModelAdmin):
 	list_display = ('id', 'name')
@@ -55,7 +57,7 @@ class DetailsListModeAdmin(admin.ModelAdmin):
 
 class WebPageAdmin(admin.ModelAdmin):
 	list_display = ('id', 'title',)
-
+	search_fields = ['title']
 
 #admin.site.register(Student)
 #admin.site.register(Classes)
